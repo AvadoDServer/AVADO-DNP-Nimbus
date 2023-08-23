@@ -70,6 +70,8 @@ exec /home/user/nimbus-eth2/build/nimbus_beacon_node \
   --keymanager \
   ${INITIAL_STATE_FILE:+--finalized-checkpoint-state="${INITIAL_STATE_FILE}"} \
   --keymanager-token-file="${KEYMANAGER_TOKEN}" \
+  --keymanager-port=5052 \
+  --keymanager-address=0.0.0.0 \
   --tcp-port=${P2P_PORT} \
   --udp-port=${P2P_PORT} \
   --rest \

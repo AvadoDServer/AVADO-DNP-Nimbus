@@ -1,7 +1,7 @@
 version: '3.4'
 services:
   nimbus-prater.avado.dnp.dappnode.eth:
-    image: 'nimbus-prater.avado.dnp.dappnode.eth:0.0.5'
+    image: 'nimbus-prater.avado.dnp.dappnode.eth:0.0.6'
     build:
       context: ./build
       args:
@@ -9,6 +9,8 @@ services:
     ports:
       - '9101:9101/udp'
       - '9101:9101'
+      - '5052:5052'
+      - '9999:9999'
     volumes:
       - 'data:/data'
     environment:

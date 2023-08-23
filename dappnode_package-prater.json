@@ -1,6 +1,6 @@
 {
   "name": "nimbus-prater.avado.dnp.dappnode.eth",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "upstream": "v23.7.0",
   "title": "Nimbus Prater",
   "description": "Nimbus-eth2 is an extremely efficient consensus layer (eth2) client implementation.",
