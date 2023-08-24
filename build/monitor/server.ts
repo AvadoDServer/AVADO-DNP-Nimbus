@@ -136,17 +136,6 @@ server.get("/service/status", (req: restify.Request, res: restify.Response, next
 // EXIT validator    ///
 ////////////////////////
 
-// nimbus_beacon_node deposits exit [OPTIONS]...
-
-// Submits a validator voluntary exit.
-
-// The following options are available:
-
-//  --validator  Validator index, public key or a keystore path of the exited validator.
-//  --epoch  The desired exit epoch.
-//  --rest-url  URL of the beacon node REST service [=http://127.0.0.1:5052].
-//  --print  Print signed exit message instead of publishing it [=false].
-
 server.post("/exit_validator/:pubkey", async (req: restify.Request, res: restify.Response, next: restify.Next) => {
     const pubkey = req.params?.pubkey
 
@@ -159,18 +148,22 @@ server.post("/exit_validator/:pubkey", async (req: restify.Request, res: restify
     console.log(`Sending exit message for validator ${pubkey}`)
     console.log(`!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!`)
 
-    const nimbus = "/home/user/nimbus-eth2/build/nimbus_beacon_node"
-    const cmd = `${nimbus} deposits exit --validator="${pubkey}"`
-
-    try {
-        const stdout = execSync(cmd)
-        res.send(200, stdout.toString().trim() || "success")
-        next();
-    } catch (e: any) {
-        // console.log(e.stderr.toString())
-        res.send(500, e.stderr.toString().trim())
-        next();
+    const path = `/eth/v1/validator/${pubkey}/voluntary_exit`
+    const url = `${server_config.keymanager_url}/${path}`
+    const keymanagertoken = getKeyManagerToken();
+    const headers = {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${keymanagertoken}`
     }
+
+    // console.log(req.body, url, keymanagertoken);
+    axiosRequest(
+        url,
+        headers,
+        req,
+        res,
+        next
+    )
 })
 
 ////////////////////////
