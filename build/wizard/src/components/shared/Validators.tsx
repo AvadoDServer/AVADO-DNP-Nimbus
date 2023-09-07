@@ -65,7 +65,7 @@ const Validators = ({ settings, api, readonly = false }: Props) => {
     }
 
     const updateValidators = React.useCallback(async () => {
-        console.log("Trying to update validators")
+        console.log("Fetch validator information from keymanager")
         api.get("/keymanager/eth/v1/keystores",
             (res) => {
                 if (res.status === 200) {
@@ -81,6 +81,10 @@ const Validators = ({ settings, api, readonly = false }: Props) => {
 
     React.useEffect(() => {
         updateValidators();
+        const interval = setInterval(() => {
+            updateValidators();
+        }, 60 * 1000); // refresh every minute
+        return () => clearInterval(interval);
     }, [api, settings, updateValidators])
 
     React.useEffect(() => {
@@ -94,6 +98,7 @@ const Validators = ({ settings, api, readonly = false }: Props) => {
             return api.get(`/keymanager/eth/v1/validator/${pubKey}/feerecipient`,
                 (res) => {
                     if (res.status === 200) {
+                        // console.log(res)
                         const address = res.data.data.ethaddress;
                         if (address && address !== "0x0000000000000000000000000000000000000000")
                             return result(address)
@@ -173,8 +178,8 @@ const Validators = ({ settings, api, readonly = false }: Props) => {
         console.log("Deleting " + pubKey);
         //https://ethereum.github.io/keymanager-APIs/#/Local%20Key%20Manager/DeleteKeys
         api.delete("/keymanager/eth/v1/keystores", { pubkeys: [pubKey] }, (res) => {
-            console.dir(res)
-            console.log(res)
+            // console.dir(res)
+            console.log("Slashing protection data", res)
             downloadSlashingData(res.data.slashing_protection)
             if (res.status === 200) {
                 updateValidators();
@@ -182,39 +187,6 @@ const Validators = ({ settings, api, readonly = false }: Props) => {
         }, (e) => {
             console.log(e)
             console.dir(e)
-        });
-    }
-
-    function askConfirmationExitValidator(pubKey: string) {
-        confirmAlert({
-            message: `Are you sure you want to exit validator "${pubKey}"?
-            Please make sure you understand the consequences of performing a voluntary exit.
-            Once an account is exited, the action cannot be reverted.`,
-            buttons: [
-                {
-                    label: 'Exit',
-                    onClick: () => exitValidator(pubKey)
-                },
-                {
-                    label: 'Cancel',
-                    onClick: () => { }
-                }
-            ]
-        });
-    }
-
-    const exitValidator = (pubKey: string) => {
-        console.log("Exiting " + pubKey);
-
-        api.post(`/exit_validator/${pubKey}`, {}, (res) => {
-            console.log(res.data)
-            if (res.status === 200) {
-                updateValidators();
-            }
-            alert(res.data);
-        }, (e) => {
-            console.log(e)
-            alert(e);
         });
     }
 
@@ -255,7 +227,7 @@ const Validators = ({ settings, api, readonly = false }: Props) => {
 
     const canExit = (validator: ValidatorData) => validator.status === "active_ongoing"
 
-    const getFeeRecipient = (feeRecipients: feeRecipientType[], pubkey: string) => feeRecipients.find(x => (x.pubKey === pubkey))!.recipient
+    const getFeeRecipient = (feeRecipients: feeRecipientType[], pubkey: string) => feeRecipients.find(x => (x.pubKey === pubkey))?.recipient ?? "todo"
 
     return (
         <div>
@@ -311,10 +283,10 @@ const Validators = ({ settings, api, readonly = false }: Props) => {
                                     </thead>
                                     <tbody>
                                         {validatorData.sort((v1, v2) => parseInt(v1.index) - parseInt(v2.index)).map((validator, i) =>
-                                            <tr key={validator.index}>
+                                            <tr key={`validator-${i}`}>
                                                 <td>
                                                     {beaconchainUrl("/validator/" + validator.validator.pubkey, <span className="icon has-text-info"><FontAwesomeIcon className="icon" icon={faSatelliteDish} /></span>)}
-                                                    <RocketPoolLink validator={validator} network={settings.network} />
+                                                    <RocketPoolLink api={api} validator={validator} network={settings.network} />
                                                 </td>
                                                 <td>{beaconchainUrl("/validator/" + validator.validator.pubkey, validator.index)}</td>
                                                 <td>{beaconchainUrl("/validator/" + validator.validator.pubkey, abbreviatePublicKey(validator.validator.pubkey))}</td>

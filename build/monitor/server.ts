@@ -133,40 +133,6 @@ server.get("/service/status", (req: restify.Request, res: restify.Response, next
 });
 
 ////////////////////////
-// EXIT validator    ///
-////////////////////////
-
-server.post("/exit_validator/:pubkey", async (req: restify.Request, res: restify.Response, next: restify.Next) => {
-    const pubkey = req.params?.pubkey
-
-    if (!pubkey) {
-        res.send(500, "missing pubkey")
-        next();
-    }
-
-    console.log(`!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!`)
-    console.log(`Sending exit message for validator ${pubkey}`)
-    console.log(`!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!`)
-
-    const path = `/eth/v1/validator/${pubkey}/voluntary_exit`
-    const url = `${server_config.keymanager_url}/${path}`
-    const keymanagertoken = getKeyManagerToken();
-    const headers = {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${keymanagertoken}`
-    }
-
-    // console.log(req.body, url, keymanagertoken);
-    axiosRequest(
-        url,
-        headers,
-        req,
-        res,
-        next
-    )
-})
-
-////////////////////////
 // Checkpoint API    ///
 ////////////////////////
 
@@ -178,20 +144,22 @@ server.get("/:name/checkpointz/v1/beacon/slots/:slot", (req: restify.Request, re
     get(url, res, next)
 });
 
-// beacon chain is different
-server.get("/beaconcha.in/api/v1/block/:slot", (req: restify.Request, res: restify.Response, next: restify.Next) => {
-    const slot = req.params.slot;
-    const url = `https://beaconcha.in/api/v1/block/${slot}`
+////////////////////////
+// beaconcha.in API   //
+////////////////////////
+server.get("/beaconcha.in/*", (req: restify.Request, res: restify.Response, next: restify.Next) => {
+    const path = req.params["*"]
+    const url = `https://beaconcha.in/${path}`
     get(url, res, next)
 });
-server.get("/prater.beaconcha.in/api/v1/block/:slot", (req: restify.Request, res: restify.Response, next: restify.Next) => {
-    const slot = req.params.slot;
-    const url = `https://prater.beaconcha.in/api/v1/block/${slot}`
+server.get("/prater.beaconcha.in/*", (req: restify.Request, res: restify.Response, next: restify.Next) => {
+    const path = req.params["*"]
+    const url = `https://prater.beaconcha.in/${path}`
     get(url, res, next)
 });
-server.get("/beacon.gnosischain.com/api/v1/block/:slot", (req: restify.Request, res: restify.Response, next: restify.Next) => {
-    const slot = req.params.slot;
-    const url = `https://beacon.gnosischain.com/api/v1/block/${slot}`
+server.get("/beacon.gnosischain.com/*", (req: restify.Request, res: restify.Response, next: restify.Next) => {
+    const path = req.params["*"]
+    const url = `https://beacon.gnosischain.com/${path}`
     get(url, res, next)
 });
 
@@ -204,13 +172,23 @@ const get = (url: string, res: restify.Response, next: restify.Next) => {
             res.send(response.status, response.data.data)
             next();
         }
-    ).catch(
-        (error: any) => {
-            console.log("Error contacting ", url, error);
-            res.send(500, "failed")
+    ).catch(function (error) {
+        console.log("Error contacting ", url, error);
+        console.log("config", JSON.stringify(error.config));
+        if (error.response) {
+            console.log('Error', error.response.data);
+            res.send(error.response.status, error.response.data)
+            next();
+        } else if (error.request) {
+            console.log(error.request);
+            res.send(500, error.request)
+            next();
+        } else {
+            console.log('Error', error.message);
+            res.send(500, error.message)
             next();
         }
-    )
+    })
 }
 
 /////////////////////////////
@@ -218,6 +196,14 @@ const get = (url: string, res: restify.Response, next: restify.Next) => {
 /////////////////////////////
 
 server.get('/rest/*', (req: restify.Request, res: restify.Response, next: restify.Next) => {
+    processRestRequest(req, res, next);
+});
+
+server.post('/rest/*', (req: restify.Request, res: restify.Response, next: restify.Next) => {
+    processRestRequest(req, res, next);
+});
+
+const processRestRequest = (req: restify.Request, res: restify.Response, next: restify.Next) => {
     const path = req.params["*"]
     const url = `${server_config.rest_url}/${path}`
     const headers = {
@@ -230,7 +216,7 @@ server.get('/rest/*', (req: restify.Request, res: restify.Response, next: restif
         res,
         next
     )
-});
+}
 
 /////////////////////////////
 // Key manager API         //
@@ -277,11 +263,31 @@ const axiosRequest = (url: string, headers: object, req: restify.Request, res: r
     }).then((response: any) => {
         res.send(response.status, response.data)
         next();
-    }).catch((error: any) => {
-        console.log("Error contacting ", url, error.cause);
-        res.send(500, "failed")
-        next();
+    }).catch(function (error) {
+        if (error.response) {
+            // The request was made and the server responded with a status code
+            // that falls out of the range of 2xx
+            console.log('Error', error.response.data);
+            // console.log(error.response.status);
+            // console.log(error.response.headers);
+            res.send(error.response.status, error.response.data)
+            next();
+        } else if (error.request) {
+            // The request was made but no response was received
+            // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+            // http.ClientRequest in node.js
+            console.log(error.request);
+            res.send(500, error.request)
+            next();
+        } else {
+            // Something happened in setting up the request that triggered an Error
+            console.log('Error', error.message);
+            res.send(500, error.message)
+            next();
+        }
+        console.log("config", JSON.stringify(error.config));
     });
+
 }
 
 const getKeyManagerToken = () => {
