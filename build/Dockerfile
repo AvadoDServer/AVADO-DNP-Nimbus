@@ -1,5 +1,5 @@
 ARG NIMBUS_VERSION
-FROM node:16.15.0 as builder
+FROM node:18.15.0 as builder
 
 # build wizard
 WORKDIR /usr/src/app/wizard
@@ -7,9 +7,11 @@ COPY wizard .
 RUN yarn
 RUN rm -Rf build && yarn run build
 
+
 # build monitor
 WORKDIR /usr/src/monitor
 COPY monitor .
+RUN yarn
 RUN rm -Rf build && yarn run build
 
 FROM --platform=linux/amd64 statusim/nimbus-eth2:amd64-${NIMBUS_VERSION}
