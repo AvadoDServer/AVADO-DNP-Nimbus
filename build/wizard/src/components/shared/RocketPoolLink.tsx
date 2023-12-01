@@ -21,6 +21,7 @@ const RocketPoolLink = ({ api, validator, network }: Props) => {
         const beaconchainUrl = () => {
             switch (network) {
                 case "prater": return "prater.beaconcha.in"
+                case "holesky": return "holesky.beaconcha.in"
                 case "gnosis": return "beacon.gnosischain.com"
                 default: return "beaconcha.in"
             }
@@ -41,6 +42,7 @@ const RocketPoolLink = ({ api, validator, network }: Props) => {
     const rocketscanUrl = () => {
         switch (network) {
             case "prater": return "https://prater.rocketscan.io"
+            case "holesky": return "https://holesky.rocketscan.io"
             case "gnosis": return ""
             default: return "https://rocketscan.io"
         }
