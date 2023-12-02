@@ -43,6 +43,7 @@ export const abbreviatePublicKey = (key: string) => <abbr title={key}>{key?.subs
 export const createBeaconchainUrl = (network: Network | null | undefined, validatorPubkey: string, text?: any) => {
     const beaconChainBaseUrl = ({
         "prater": "https://prater.beaconcha.in",
+        "holesky": "https://holesky.beaconcha.in",
         "mainnet": "https://beaconcha.in",
         "gnosis": "https://gnosischa.in"
     })[network ?? "mainnet"]

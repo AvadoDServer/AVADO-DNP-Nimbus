@@ -157,6 +157,11 @@ server.get("/prater.beaconcha.in/*", (req: restify.Request, res: restify.Respons
     const url = `https://prater.beaconcha.in/${path}`
     get(url, res, next)
 });
+server.get("/holesky.beaconcha.in/*", (req: restify.Request, res: restify.Response, next: restify.Next) => {
+    const path = req.params["*"]
+    const url = `https://holesky.beaconcha.in/${path}`
+    get(url, res, next)
+});
 server.get("/beacon.gnosischain.com/*", (req: restify.Request, res: restify.Response, next: restify.Next) => {
     const path = req.params["*"]
     const url = `https://beacon.gnosischain.com/${path}`

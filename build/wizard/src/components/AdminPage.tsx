@@ -39,7 +39,7 @@ const Comp = ({ api, dappManagerHelper }: Props) => {
             <h2 className="title is-2">Debug</h2>
             <div className="content">
                 <ul>
-                    {server_config.name === "teku" && (
+                    {server_config.name === "teku" && server_config.network === "prater" && (
                         <li>
                             <a href={"http://teku-prater.my.ava.do:5051/swagger-ui"} target="_blank" rel="noopener noreferrer">Swagger RPC UI</a>
 

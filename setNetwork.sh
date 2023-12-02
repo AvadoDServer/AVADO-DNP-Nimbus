@@ -3,7 +3,7 @@
 NETWORK=$1
 
 case ${NETWORK} in
-  "gnosis"|"prater"|"mainnet")
+  "gnosis"|"prater"|"mainnet"|"holesky")
     ;;
   *)
     echo "Invalid network"

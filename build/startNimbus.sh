@@ -26,6 +26,9 @@ case ${NETWORK} in
 "prater")
   P2P_PORT=9101
   ;;
+"holesky")
+  P2P_PORT=9102
+  ;;
 *)
   P2P_PORT=9100
   ;;
@@ -44,7 +47,7 @@ if [ ! -d "${DATA_PATH}/db" ]; then
   INITIAL_STATE_FILE="/data/data-${NETWORK}/initial_state.ssz"
   if [ ! -f "${INITIAL_STATE_FILE}" ]; then
     case ${NETWORK} in
-    "prater")
+    "prater" | "holesky")
       until $(curl -sH 'Accept: application/octet-stream' --silent --fail "${INITIAL_STATE}" --output "${INITIAL_STATE_FILE}"); do
         echo "Waiting for initial state download"
         sleep 5
