@@ -5,7 +5,7 @@ services:
     build:
       context: ./build
       args:
-        NIMBUS_VERSION: v24.1.1
+        NIMBUS_VERSION: v24.1.2
     ports:
       - '9100:9100/udp'
       - '9100:9100'
