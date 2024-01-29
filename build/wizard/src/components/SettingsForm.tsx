@@ -70,10 +70,11 @@ const Comp = ({ name, settings, defaultSettings, applySettingsChanges, installed
     React.useEffect(() => {
         if (installedPackages && settings) {
             console.log(installedPackages)
+            console.log(settings)
             if (installedPackages && settings) {
                 const sees = execution_engines.filter(ee => ee.network === settings.network)
                 if (isAdminMode)
-                    console.log("Execution clients", server_config.network, sees.map(ee => ee.packagename))
+                    console.log("Execution clients", server_config.network, settings, sees.map(ee => ee.packagename))
                 setSupportedExecutionEngines(sees)
             }
         }
