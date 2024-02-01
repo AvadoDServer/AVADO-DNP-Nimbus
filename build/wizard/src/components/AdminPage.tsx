@@ -39,10 +39,9 @@ const Comp = ({ api, dappManagerHelper }: Props) => {
             <h2 className="title is-2">Debug</h2>
             <div className="content">
                 <ul>
-                    {server_config.name === "teku" && server_config.network === "prater" && (
+                    {server_config.name === "teku" && (
                         <li>
-                            <a href={"http://teku-prater.my.ava.do:5051/swagger-ui"} target="_blank" rel="noopener noreferrer">Swagger RPC UI</a>
-
+                            <a href={`http://teku-${server_config.network}.my.ava.do:5051/swagger-ui`} target="_blank" rel="noopener noreferrer">Swagger RPC UI</a>
                         </li>
                     )}
                     {dappManagerHelper && (
@@ -55,7 +54,7 @@ const Comp = ({ api, dappManagerHelper }: Props) => {
                 {status && (
                     <ul>
                         {status.map((program) =>
-                            <li>
+                            <li key={program.name}>
                                 <b>{program.name}</b>: {program.statename}
                             </li>
                         )}

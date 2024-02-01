@@ -1,4 +1,4 @@
-import server_config_json from "./server_config.json"
+import server_config_json from "./server_config.json" with { type: "json" };
 
 const packageUrl = server_config_json.network === "mainnet" ? `nimbus.my.ava.do` : `nimbus-${server_config_json.network}.my.ava.do`
 

@@ -1,6 +1,6 @@
 {
   "name": "nimbus-holesky.avado.dnp.dappnode.eth",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "upstream": "v24.1.2",
   "title": "Nimbus Holesky",
   "description": "Nimbus-eth2 is an extremely efficient consensus layer (eth2) client implementation.",

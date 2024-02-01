@@ -69,18 +69,26 @@ const CheckCheckPointSync = ({ api, network, packageUrl }: Props) => {
                 [
                     "goerli.beaconstate.info",
                     "goerli.beaconstate.ethstaker.cc",
+                    "https://checkpoint-sync.goerli.ethpandaops.io"
                 ]
-                : network === "gnosis" ?
+                : network === "holesky" ?
                     [
-                        // "checkpoint.gnosischain.com",
+                        "holesky.beaconstate.info",
+                        "holesky.beaconstate.ethstaker.cc",
+                        "checkpoint-sync.holesky.ethpandaops.io"
                     ]
-                    : [
-                        "beaconstate.info",
-                        "beaconstate.ethstaker.cc",
-                        "mainnet-checkpoint-sync.attestant.io",
-                        // "checkpointz.pietjepuk.net",
-                        // "mainnet.checkpoint.sigp.io"
-                    ]
+                    : network === "gnosis" ?
+                        [
+                            "checkpoint.gnosischain.com",
+                        ]
+                        : [
+                            "beaconstate.info",
+                            "beaconstate.ethstaker.cc",
+                            "mainnet-checkpoint-sync.attestant.io",
+                            "sync-mainnet.beaconcha.in"
+                            // "checkpointz.pietjepuk.net",
+                            // "mainnet.checkpoint.sigp.io"
+                        ]
 
 
             const fetchFromCheckpointzEndPoint = async (endpoint: string): Promise<tableDateType> => {
@@ -88,9 +96,15 @@ const CheckCheckPointSync = ({ api, network, packageUrl }: Props) => {
                 console.log(url)
                 return {
                     url: `https://${endpoint}`, state_root: await axios.get(url)
-                        .then(res => network === "gnosis" ?
-                    res.data.block.Altair.message.state_root
-                            : res.data.block.Bellatrix.message.state_root)
+                        .then(
+                            res => {
+                                const data = 'data' in res.data ? res.data.data : res.data;
+                                // console.log(data);
+                                return network === "gnosis" ? data.block.Capella.message.state_root
+                                    : network === "prater" ? data.block.Deneb.message.state_root
+                                        : network === "holesky" ? data.block.Capella.message.state_root
+                                            : data.block.Capella.message.state_root
+                            })
                         .catch(error => "could not fetch, check manually")
                 }
             }
@@ -99,6 +113,7 @@ const CheckCheckPointSync = ({ api, network, packageUrl }: Props) => {
             const fetchFromBeaconChain = async (): Promise<tableDateType> => {
                 const base_url = ({
                     "prater": "prater.beaconcha.in",
+                    "holesky": "holesky.beaconcha.in",
                     "gnosis": "beacon.gnosischain.com",
                     "mainnet": "beaconcha.in"
                 })[network]
@@ -107,7 +122,11 @@ const CheckCheckPointSync = ({ api, network, packageUrl }: Props) => {
                 console.log(url)
                 return {
                     url: `https://${base_url}/slot/${slot}`, state_root: await axios.get(url)
-                        .then(res => res.data.stateroot)
+                        .then(res => {
+                            const data = 'data' in res.data ? res.data.data : res.data;
+                            // console.log(data.stateroot)
+                            return data.stateroot
+                        })
                         .catch(error => "could not fetch, check manually")
                 }
             }
