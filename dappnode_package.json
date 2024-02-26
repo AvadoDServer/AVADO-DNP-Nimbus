@@ -1,10 +1,10 @@
 {
-  "name": "nimbus-holesky.avado.dnp.dappnode.eth",
-  "version": "0.0.6",
+  "name": "nimbus.avado.dnp.dappnode.eth",
+  "version": "0.0.16",
   "upstream": "v24.2.1",
-  "title": "Nimbus Holesky",
+  "title": "Nimbus",
   "description": "Nimbus-eth2 is an extremely efficient consensus layer (eth2) client implementation.",
-  "avatar": "/ipfs/QmavzBkNo9rHVrN2FHsFX9tQZmEhpCU8T35W5qK24PHne8",
+  "avatar": "/ipfs/QmPCB9g8ajvstqmGSfbM9jSHUpBK1UEg4Y4gCWVZX9c49k",
   "type": "service",
   "autoupdate": true,
   "image": {
@@ -12,8 +12,8 @@
       "data:/data"
     ],
     "ports": [
-      "9102:9102/tcp",
-      "9102:9102/udp"
+      "9100:9100/tcp",
+      "9100:9100/udp"
     ],
     "environment": [
       "EXTRA_OPTS="
@@ -24,7 +24,7 @@
   "license": "Apache(c)",
   "dependencies": {},
   "links": {
-    "OnboardingWizard": "http://nimbus-holesky.my.ava.do",
+    "OnboardingWizard": "http://nimbus.my.ava.do",
     "HomePage": "https://nimbus.guide/"
   }
 }
