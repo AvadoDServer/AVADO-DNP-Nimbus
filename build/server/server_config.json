@@ -1,5 +1,5 @@
 {
-  "network": "holesky",
+  "network": "mainnet",
   "name": "nimbus",
   "supervisord_programs": [
     "nimbus"
