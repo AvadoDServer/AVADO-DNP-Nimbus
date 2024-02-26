@@ -7,5 +7,5 @@
   "p2p_peer_upper_bound": 100,
   "validators_proposer_default_fee_recipient": "",
   "initial_state": "https://checkpoint-sync.holesky.ethpandaops.io/eth/v2/debug/beacon/states/finalized",
-  "mev_boost": true
+  "mev_boost": false
 }

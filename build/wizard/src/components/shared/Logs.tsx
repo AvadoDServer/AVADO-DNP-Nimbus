@@ -2,7 +2,7 @@ import React from "react";
 
 import { DappManagerHelper } from "./DappManagerHelper";
 import striptags from "striptags";
-import AnsiUp from "ansi_up";
+import { AnsiUp } from "ansi_up";
 import styled from "styled-components";
 
 const terminalID = "terminal";

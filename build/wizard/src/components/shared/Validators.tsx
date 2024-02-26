@@ -1,6 +1,6 @@
 import React from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSatelliteDish, faTrash, faArrowUpFromBracket } from "@fortawesome/free-solid-svg-icons";
+import { faSatelliteDish, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { confirmAlert } from 'react-confirm-alert';
 import 'react-confirm-alert/src/react-confirm-alert.css'; // Import css
 import AddValidator from "./AddValidator";
@@ -216,14 +216,19 @@ const Validators = ({ settings, api, readonly = false }: Props) => {
     }
 
     const withdrawalTag = (validator: ValidatorData) => {
-        const ready = validator.validator.withdrawal_credentials.startsWith("0x01")
+
         const message = () => {
-            if (ready)
-                return "enabled"
-            if (!ready)
-                return "todo"
+            const withdrawal_credentials = validator.validator.withdrawal_credentials
+
+            if (validator.status.startsWith("exit"))
+                return ["exited", ""]
+            if (withdrawal_credentials === "0x0000000000000000000000000000000000000000000000000000000000000000")
+                return ["pending", ""]
+            if (withdrawal_credentials.startsWith("0x01"))
+                return ["enabled", "is-success"]
+            return ["todo", "is-warning"]
         }
-        return <span className={"tag " + (ready ? "is-success" : "is-warning")}>{message()}</span>
+        return <span className={"tag " + message()[1]}>{message()[0]}</span>
     }
 
     const canExit = (validator: ValidatorData) => validator.status === "active_ongoing"

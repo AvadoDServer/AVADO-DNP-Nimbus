@@ -82,7 +82,7 @@ const Comp = () => {
         if (wampSession && dappManagerHelper && !settings && api) {
             api.get("/settings", (res) => {
                 console.log("settings", res.data)
-                const parsedSettings = JSON.parse(res.data)
+                let parsedSettings = typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
                 if (parsedSettings) {
                     if (!parsedSettings.validators_proposer_default_fee_recipient) {
                         parsedSettings.validators_proposer_default_fee_recipient = "" // force check on intial load after update

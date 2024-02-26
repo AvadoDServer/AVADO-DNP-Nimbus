@@ -1,4 +1,4 @@
-import xmlrpc from "xmlrpc";
+import xmlrpc from "npm:xmlrpc@1.3.2";
 
 // methods: http://supervisord.org/api.html
 type Method = 'supervisor.addProcessGroup' | 'supervisor.clearAllProcessLogs' | 'supervisor.clearLog' | 'supervisor.clearProcessLog' |

@@ -7,60 +7,42 @@ COPY wizard .
 RUN yarn
 RUN rm -Rf build && yarn run build
 
-
-# build monitor
-WORKDIR /usr/src/monitor
-COPY monitor .
-RUN yarn
-RUN rm -Rf build && yarn run build
-
 FROM --platform=linux/amd64 statusim/nimbus-eth2:amd64-${NIMBUS_VERSION}
+ARG NETWORK
 
 USER root
 RUN apt-get -y update && apt-get -y upgrade && apt-get -y install \
     curl \
-    gettext\
     jq \
-    nginx \
-    nodejs \
     procps \
+    unzip \
     sudo \
     supervisor \
     vim-tiny \
     && rm -rf /var/lib/apt/lists/*
-RUN useradd -s /bin/false nginx
-
-
-# Instal node v18.15.0
-ENV NVM_DIR /root/.nvm
-ENV NODE_VERSION v18.15.0
-
-RUN curl https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash \
-    && . $NVM_DIR/nvm.sh \
-    && nvm install $NODE_VERSION \
-    && nvm alias default $NODE_VERSION \
-    && nvm use default
-
-ENV NODE_PATH $NVM_DIR/$NODE_VERSION/lib/node_modules
-ENV PATH      $NVM_DIR/$NODE_VERSION/bin:$PATH
 
 RUN mkdir /data  && chown user /data
 VOLUME /data
 
 COPY --from=builder /usr/src/app/wizard/build /usr/local/wizard
-COPY --from=builder /usr/src/monitor/ /usr/local/monitor
+
+# Install deno
+RUN curl --fail --location --progress-bar --output /tmp/deno.zip "https://github.com/denoland/deno/releases/download/v1.40.2/deno-x86_64-unknown-linux-gnu.zip" \
+  && unzip -d /usr/local/bin/ -o /tmp/deno.zip \
+  && chmod +x /usr/local/bin/deno \
+  && rm /tmp/deno.zip
+
+COPY server /usr/local/server
+RUN cd /usr/local/server && deno check server.ts && deno cache server.ts
+
+COPY wizard-server /usr/local/wizard-server
+RUN cd /usr/local/wizard-server && deno check wizard-server.ts && deno cache wizard-server.ts
 
 COPY startNimbus.sh /opt/nimbus/
-COPY reload-certs.sh /opt/nimbus/reload-certs.sh
-COPY monitor/settings/defaultsettings.json /opt/nimbus
-RUN chmod a+x /opt/nimbus/startNimbus.sh /opt/nimbus/reload-certs.sh
-COPY supervisord.conf /etc/supervisord.conf
-COPY nginx.conf /etc/nginx/
+COPY server/settings/defaultsettings-${NETWORK}.json /opt/nimbus/defaultsettings.json
+RUN chmod a+x /opt/nimbus/startNimbus.sh
 
-# EXPOSE 5052
-# USER user
-# RUN curl "http://iso.ava.do/my.ava.do.crt" --output /opt/nimbus/my.ava.do.crt --silent
-# RUN curl "http://iso.ava.do/my.ava.do.key" --output /opt/nimbus/my.ava.do.key --silent
+COPY supervisord.conf /etc/supervisord.conf
 
 USER root
 WORKDIR /

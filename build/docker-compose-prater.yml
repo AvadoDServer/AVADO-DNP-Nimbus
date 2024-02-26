@@ -5,7 +5,8 @@ services:
     build:
       context: ./build
       args:
-        NIMBUS_VERSION: v24.1.2
+        NIMBUS_VERSION: v24.2.1
+        NETWORK: prater
     ports:
       - '9101:9101/udp'
       - '9101:9101'

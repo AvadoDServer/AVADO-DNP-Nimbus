@@ -6,6 +6,7 @@ services:
       context: ./build
       args:
         NIMBUS_VERSION: v24.1.2
+        NETWORK: mainnet
     ports:
       - '9100:9100/udp'
       - '9100:9100'
