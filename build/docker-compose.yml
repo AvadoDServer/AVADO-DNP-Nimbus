@@ -1,15 +1,17 @@
 version: '3.4'
 services:
-  nimbus.avado.dnp.dappnode.eth:
-    image: 'nimbus.avado.dnp.dappnode.eth:0.0.16'
+  nimbus-holesky.avado.dnp.dappnode.eth:
+    image: 'nimbus-holesky.avado.dnp.dappnode.eth:0.0.7'
     build:
       context: ./build
       args:
-        NIMBUS_VERSION: v24.2.1
-        NETWORK: mainnet
+        NIMBUS_VERSION: v24.2.2
+        NETWORK: holesky
     ports:
-      - '9100:9100/udp'
-      - '9100:9100'
+      - '9102:9102/udp'
+      - '9102:9102'
+      - '5052:5052'
+      - '9999:9999'
     volumes:
       - 'data:/data'
     environment:
