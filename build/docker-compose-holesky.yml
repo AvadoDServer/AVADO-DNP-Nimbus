@@ -1,11 +1,11 @@
 version: '3.4'
 services:
   nimbus-holesky.avado.dnp.dappnode.eth:
-    image: 'nimbus-holesky.avado.dnp.dappnode.eth:0.0.7'
+    image: 'nimbus-holesky.avado.dnp.dappnode.eth:0.0.8'
     build:
       context: ./build
       args:
-        NIMBUS_VERSION: v24.5.1
+        NIMBUS_VERSION: v24.7.0
         NETWORK: holesky
     ports:
       - '9102:9102/udp'
