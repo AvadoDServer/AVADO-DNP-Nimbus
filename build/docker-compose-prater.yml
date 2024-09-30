@@ -1,11 +1,11 @@
 version: '3.4'
 services:
   nimbus-prater.avado.dnp.dappnode.eth:
-    image: 'nimbus-prater.avado.dnp.dappnode.eth:0.0.11'
+    image: 'nimbus-prater.avado.dnp.dappnode.eth:0.0.12'
     build:
       context: ./build
       args:
-        NIMBUS_VERSION: v24.8.0
+        NIMBUS_VERSION: v24.9.0
         NETWORK: prater
     ports:
       - '9101:9101/udp'
