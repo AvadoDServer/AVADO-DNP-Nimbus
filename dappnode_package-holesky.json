@@ -1,23 +1,16 @@
 {
   "name": "nimbus-holesky.avado.dnp.dappnode.eth",
-  "version": "0.0.10",
-  "upstream": "v24.9.0",
+  "version": "0.0.11",
+  "upstream": "v24.10.0",
   "title": "Nimbus Holesky",
   "description": "Nimbus-eth2 is an extremely efficient consensus layer (eth2) client implementation.",
   "avatar": "/ipfs/QmavzBkNo9rHVrN2FHsFX9tQZmEhpCU8T35W5qK24PHne8",
   "type": "service",
   "autoupdate": true,
   "image": {
-    "volumes": [
-      "data:/data"
-    ],
-    "ports": [
-      "9102:9102/tcp",
-      "9102:9102/udp"
-    ],
-    "environment": [
-      "EXTRA_OPTS="
-    ],
+    "volumes": ["data:/data"],
+    "ports": ["9102:9102/tcp", "9102:9102/udp"],
+    "environment": ["EXTRA_OPTS="],
     "restart": "always"
   },
   "author": "heeckhau",
