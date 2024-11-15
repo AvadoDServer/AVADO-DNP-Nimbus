@@ -1,23 +1,16 @@
 {
   "name": "nimbus-prater.avado.dnp.dappnode.eth",
-  "version": "0.0.12",
-  "upstream": "v24.9.0",
+  "version": "0.0.13",
+  "upstream": "v24.10.0",
   "title": "Nimbus Prater",
   "description": "Nimbus-eth2 is an extremely efficient consensus layer (eth2) client implementation.",
   "avatar": "/ipfs/QmavzBkNo9rHVrN2FHsFX9tQZmEhpCU8T35W5qK24PHne8",
   "type": "service",
   "autoupdate": true,
   "image": {
-    "volumes": [
-      "data:/data"
-    ],
-    "ports": [
-      "9101:9101/tcp",
-      "9101:9101/udp"
-    ],
-    "environment": [
-      "EXTRA_OPTS="
-    ],
+    "volumes": ["data:/data"],
+    "ports": ["9101:9101/tcp", "9101:9101/udp"],
+    "environment": ["EXTRA_OPTS="],
     "restart": "always"
   },
   "author": "heeckhau",

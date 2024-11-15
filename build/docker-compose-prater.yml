@@ -1,19 +1,19 @@
-version: '3.4'
+version: "3.4"
 services:
   nimbus-prater.avado.dnp.dappnode.eth:
-    image: 'nimbus-prater.avado.dnp.dappnode.eth:0.0.12'
+    image: "nimbus-prater.avado.dnp.dappnode.eth:0.0.13"
     build:
       context: ./build
       args:
-        NIMBUS_VERSION: v24.9.0
+        NIMBUS_VERSION: v24.10.0
         NETWORK: prater
     ports:
-      - '9101:9101/udp'
-      - '9101:9101'
-      - '5052:5052'
-      - '9999:9999'
+      - "9101:9101/udp"
+      - "9101:9101"
+      - "5052:5052"
+      - "9999:9999"
     volumes:
-      - 'data:/data'
+      - "data:/data"
     environment:
       - EXTRA_OPTS=
 volumes:
