@@ -1,23 +1,16 @@
 {
   "name": "nimbus.avado.dnp.dappnode.eth",
-  "version": "0.0.24",
-  "upstream": "v24.10.0",
+  "version": "0.0.25",
+  "upstream": "v24.11.0",
   "title": "Nimbus",
   "description": "Nimbus-eth2 is an extremely efficient consensus layer (eth2) client implementation.",
   "avatar": "/ipfs/QmPCB9g8ajvstqmGSfbM9jSHUpBK1UEg4Y4gCWVZX9c49k",
   "type": "service",
   "autoupdate": true,
   "image": {
-    "volumes": [
-      "data:/data"
-    ],
-    "ports": [
-      "9100:9100/tcp",
-      "9100:9100/udp"
-    ],
-    "environment": [
-      "EXTRA_OPTS="
-    ],
+    "volumes": ["data:/data"],
+    "ports": ["9100:9100/tcp", "9100:9100/udp"],
+    "environment": ["EXTRA_OPTS="],
     "restart": "always"
   },
   "author": "heeckhau",
