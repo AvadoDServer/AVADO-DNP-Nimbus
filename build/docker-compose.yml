@@ -1,11 +1,11 @@
 version: '3.4'
 services:
   nimbus.avado.dnp.dappnode.eth:
-    image: 'nimbus.avado.dnp.dappnode.eth:0.0.25'
+    image: 'nimbus.avado.dnp.dappnode.eth:0.0.26'
     build:
       context: ./build
       args:
-        NIMBUS_VERSION: v24.11.0
+        NIMBUS_VERSION: v24.12.0
         NETWORK: mainnet
     ports:
       - '9100:9100/udp'
