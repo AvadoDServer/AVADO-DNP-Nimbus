@@ -44,23 +44,11 @@ DATA_PATH="/data/data-${NETWORK}"
 
 # Initial state / checkpoint sync
 if [ ! -d "${DATA_PATH}/db" ]; then
-  INITIAL_STATE_FILE="/data/data-${NETWORK}/initial_state.ssz"
-  if [ ! -f "${INITIAL_STATE_FILE}" ]; then
-    case ${NETWORK} in
-    "prater" | "holesky")
-      until $(curl -sH 'Accept: application/octet-stream' --silent --fail "${INITIAL_STATE}" --output "${INITIAL_STATE_FILE}"); do
-        echo "Waiting for initial state download"
-        sleep 5
-      done
-      ;;
-    *)
-      until $(curl --insecure --silent --fail "${INITIAL_STATE}" --output "${INITIAL_STATE_FILE}"); do
-        echo "Waiting for initial state download"
-        sleep 5
-      done
-      ;;
-    esac
-  fi
+  exec /home/user/nimbus-eth2/build/nimbus_beacon_node trustedNodeSync \
+        --network="${NETWORK}" \
+        --trusted-node-url="${INITIAL_STATE}" \
+        --backfill=false \
+        --data-dir="${DATA_PATH}"
 fi
 
 # Start Nimbus
