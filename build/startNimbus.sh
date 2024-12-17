@@ -42,25 +42,64 @@ P2P_PEER_UPPER_BOUND=$(cat ${SETTINGSFILE} | jq -r '."p2p_peer_upper_bound"')
 INITIAL_STATE=$(cat ${SETTINGSFILE} | jq -r '."initial_state"')
 DATA_PATH="/data/data-${NETWORK}"
 
+# Define the endpoints for Nethermind and Geth
+NETHERMIND_ENDPOINT="http://avado-dnp-nethermind.my.ava.do:8545"
+GETH_ENDPOINT="http://ethchain-geth.my.ava.do:8545"
+
+# JSON-RPC payload for web3_clientVersion
+PAYLOAD='{"jsonrpc":"2.0","method":"web3_clientVersion","params":[],"id":1}'
+
+# Function to extract client version from a given endpoint
+get_client_version() {
+    local endpoint="$1"
+    RESPONSE=$(curl -s -X POST \
+        -H "Content-Type: application/json" \
+        --data "${PAYLOAD}" \
+        "${endpoint}")
+  echo "Raw response: $RESPONSE"
+   # Extract the client version string from the JSON-RPC response
+    CLIENT_VERSION=$(echo "${RESPONSE}" | awk -F'"' '/result/ {print $4}')
+
+    # Extract just the client name (the part before the slash, e.g., "Geth" or "Nethermind")
+    CLIENT_NAME=$(echo "${CLIENT_VERSION}" | awk -F'/' '{print $1}')
+    echo "${CLIENT_NAME}"
+}
+
+
 # Initial state / checkpoint sync
 if [ ! -d "${DATA_PATH}/db" ]; then
-  INITIAL_STATE_FILE="/data/data-${NETWORK}/initial_state.ssz"
-  if [ ! -f "${INITIAL_STATE_FILE}" ]; then
-    case ${NETWORK} in
-    "prater" | "holesky")
-      until $(curl -sH 'Accept: application/octet-stream' --silent --fail "${INITIAL_STATE}" --output "${INITIAL_STATE_FILE}"); do
-        echo "Waiting for initial state download"
-        sleep 5
-      done
-      ;;
-    *)
-      until $(curl --insecure --silent --fail "${INITIAL_STATE}" --output "${INITIAL_STATE_FILE}"); do
-        echo "Waiting for initial state download"
-        sleep 5
-      done
-      ;;
-    esac
-  fi
+  echo "[INFO - entrypoint] Running checkpoint sync"
+
+  NETHERMIND_VERSION=$(get_client_version "${NETHERMIND_ENDPOINT}")
+GETH_VERSION=$(get_client_version "${GETH_ENDPOINT}")
+
+IS_NETHERMIND=false
+IS_GETH=false
+
+if echo "${NETHERMIND_VERSION}" | grep -qi "Nethermind"; then
+    IS_NETHERMIND=true
+fi
+
+if echo "${GETH_VERSION}" | grep -qi "Geth"; then
+    IS_GETH=true
+fi
+
+if [ "${IS_NETHERMIND}" = true ] && [ "${IS_GETH}" = false ]; then
+    EE_ENDPOINT="http://avado-dnp-nethermind.my.ava.do:8551"
+    echo "You are running Nethermind on ${NETHERMIND_ENDPOINT}"
+elif [ "${IS_NETHERMIND}" = false ] && [ "${IS_GETH}" = true ]; then
+    EE_ENDPOINT="http://ethchain-geth.my.ava.do:8551"
+    echo "You are running Geth on ${GETH_ENDPOINT}"
+else
+    echo "Unable to determine which client you are running. Install an execution client."
+fi
+
+    /home/user/nimbus-eth2/build/nimbus_beacon_node trustedNodeSync \
+        --network="${NETWORK}" \
+        --trusted-node-url="${INITIAL_STATE}" \
+        --backfill=false \
+        --data-dir="${DATA_PATH}"
+ echo "[INFO - entrypoint] Checkpoint sync completed"
 fi
 
 # Start Nimbus
