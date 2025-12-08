@@ -87,9 +87,13 @@ fi
 if [ "${IS_NETHERMIND}" = true ] && [ "${IS_GETH}" = false ]; then
     EE_ENDPOINT="http://avado-dnp-nethermind.my.ava.do:8551"
     echo "You are running Nethermind on ${NETHERMIND_ENDPOINT}"
+    # Update settings file with detected endpoint
+    jq --arg ee "$EE_ENDPOINT" '.ee_endpoint = $ee' "${SETTINGSFILE}" > "${SETTINGSFILE}.tmp" && mv "${SETTINGSFILE}.tmp" "${SETTINGSFILE}"
 elif [ "${IS_NETHERMIND}" = false ] && [ "${IS_GETH}" = true ]; then
     EE_ENDPOINT="http://ethchain-geth.my.ava.do:8551"
     echo "You are running Geth on ${GETH_ENDPOINT}"
+    # Update settings file with detected endpoint
+    jq --arg ee "$EE_ENDPOINT" '.ee_endpoint = $ee' "${SETTINGSFILE}" > "${SETTINGSFILE}.tmp" && mv "${SETTINGSFILE}.tmp" "${SETTINGSFILE}"
 else
     echo "Unable to determine which client you are running. Install an execution client."
 fi
