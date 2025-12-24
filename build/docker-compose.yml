@@ -1,7 +1,7 @@
 version: '3.4'
 services:
   nimbus.avado.dnp.dappnode.eth:
-    image: 'nimbus.avado.dnp.dappnode.eth:0.0.37'
+    image: 'nimbus.avado.dnp.dappnode.eth:0.0.38'
     build:
       context: ./build
       args:
