@@ -8,6 +8,7 @@ import json
 import os
 import sys
 import urllib.request
+import urllib.error
 from pathlib import Path
 
 
@@ -31,8 +32,16 @@ def get_latest_nimbus_release():
             tag_name = data.get("tag_name", "")
             # Nimbus uses 'v' prefix in upstream version (e.g., v25.12.0)
             return tag_name
+    except urllib.error.HTTPError as e:
+        print(f"HTTP Error fetching latest release: {e.code} {e.reason}", file=sys.stderr)
+        if e.code == 403:
+            print("Rate limit exceeded or authentication required.", file=sys.stderr)
+        sys.exit(1)
+    except urllib.error.URLError as e:
+        print(f"Network error fetching latest release: {e.reason}", file=sys.stderr)
+        sys.exit(1)
     except Exception as e:
-        print(f"Error fetching latest release: {e}", file=sys.stderr)
+        print(f"Unexpected error fetching latest release: {e}", file=sys.stderr)
         sys.exit(1)
 
 
@@ -93,6 +102,25 @@ def update_docker_compose(file_path, new_version, new_upstream):
             f.write('\n')
 
 
+def set_github_outputs(variables):
+    """Set GitHub Actions outputs and environment variables.
+    
+    Args:
+        variables: Dictionary of variable names and values to set
+    """
+    # Set GitHub Actions output
+    if os.getenv('GITHUB_OUTPUT'):
+        with open(os.getenv('GITHUB_OUTPUT'), 'a') as f:
+            for key, value in variables.items():
+                f.write(f"{key}={value}\n")
+    
+    # Also set as environment variables for the workflow
+    if os.getenv('GITHUB_ENV'):
+        with open(os.getenv('GITHUB_ENV'), 'a') as f:
+            for key, value in variables.items():
+                f.write(f"{key}={value}\n")
+
+
 def main():
     # Get the repository root directory
     repo_root = Path(__file__).parent.parent.parent
@@ -120,14 +148,7 @@ def main():
     # Compare versions
     if latest_nimbus_version == current_upstream:
         print("Already up to date!")
-        # Set GitHub Actions output
-        if os.getenv('GITHUB_OUTPUT'):
-            with open(os.getenv('GITHUB_OUTPUT'), 'a') as f:
-                f.write(f"updated=false\n")
-        # Also set as environment variables for the workflow
-        if os.getenv('GITHUB_ENV'):
-            with open(os.getenv('GITHUB_ENV'), 'a') as f:
-                f.write(f"updated=false\n")
+        set_github_outputs({'updated': 'false'})
         sys.exit(0)
     
     print(f"New version available: {latest_nimbus_version}")
@@ -146,20 +167,12 @@ def main():
     print("Update complete!")
     
     # Set GitHub Actions output
-    if os.getenv('GITHUB_OUTPUT'):
-        with open(os.getenv('GITHUB_OUTPUT'), 'a') as f:
-            f.write(f"updated=true\n")
-            f.write(f"old_version={current_upstream}\n")
-            f.write(f"new_version={latest_nimbus_version}\n")
-            f.write(f"package_version={new_package_version}\n")
-    
-    # Also set as environment variables for the workflow
-    if os.getenv('GITHUB_ENV'):
-        with open(os.getenv('GITHUB_ENV'), 'a') as f:
-            f.write(f"updated=true\n")
-            f.write(f"old_version={current_upstream}\n")
-            f.write(f"new_version={latest_nimbus_version}\n")
-            f.write(f"package_version={new_package_version}\n")
+    set_github_outputs({
+        'updated': 'true',
+        'old_version': current_upstream,
+        'new_version': latest_nimbus_version,
+        'package_version': new_package_version
+    })
 
 
 if __name__ == "__main__":
