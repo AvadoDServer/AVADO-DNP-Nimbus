@@ -12,6 +12,10 @@ import urllib.error
 from pathlib import Path
 
 
+# Configuration constants
+IMAGE_NAME = 'nimbus.avado.dnp.dappnode.eth'
+
+
 def get_latest_nimbus_release():
     """Fetch the latest release tag from status-im/nimbus-eth2 repository."""
     url = "https://api.github.com/repos/status-im/nimbus-eth2/releases/latest"
@@ -52,7 +56,12 @@ def increment_patch_version(version):
         print(f"Invalid version format: {version}", file=sys.stderr)
         sys.exit(1)
     
-    parts[2] = str(int(parts[2]) + 1)
+    try:
+        parts[2] = str(int(parts[2]) + 1)
+    except ValueError as e:
+        print(f"Invalid patch version - must be numeric: {parts[2]}", file=sys.stderr)
+        sys.exit(1)
+    
     return '.'.join(parts)
 
 
@@ -84,10 +93,10 @@ def update_docker_compose(file_path, new_version, new_upstream):
     
     for line in lines:
         # Update image tag
-        if 'image:' in line and 'nimbus.avado.dnp.dappnode.eth:' in line:
+        if 'image:' in line and f'{IMAGE_NAME}:' in line:
             # Preserve indentation
             indent = line[:line.index('image:')]
-            updated_lines.append(f"{indent}image: 'nimbus.avado.dnp.dappnode.eth:{new_version}'")
+            updated_lines.append(f"{indent}image: '{IMAGE_NAME}:{new_version}'")
         # Update NIMBUS_VERSION
         elif 'NIMBUS_VERSION:' in line:
             indent = line[:line.index('NIMBUS_VERSION:')]
