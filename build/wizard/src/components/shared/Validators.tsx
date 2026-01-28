@@ -222,8 +222,6 @@ const Validators = ({ settings, api, readonly = false }: Props) => {
         const isBLS = credentials.startsWith("0x00"); // Legacy BLS credentials
 
         const message = () => {
-            if (validator.status.startsWith("exit"))
-                return "exited";
             if (isCompounding) return "enabled+compounding";
             if (isEnabled) return "enabled";
             if (isBLS) return "todo";
@@ -231,8 +229,6 @@ const Validators = ({ settings, api, readonly = false }: Props) => {
         }
 
         const getColorClass = () => {
-            if (validator.status.startsWith("exit"))
-                return "";
             if (isCompounding) return "is-info"; // Compounding (Pectra upgrade)
             if (isEnabled) return "is-success"; // Standard withdrawals enabled
             if (isBLS) return "is-warning"; // BLS credentials, needs update
