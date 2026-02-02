@@ -43,9 +43,9 @@ const NavigationBar = ({ network }: Props) => {
                 <div className="navbar-start">
                     <NavLink className={({ isActive }) => isActive ? "navbar-item is-active has-text-weight-bold" : "navbar-item"} to={`/${getQuery()}`} >Main</NavLink>
                     <NavLink className={({ isActive }) => isActive ? "navbar-item is-active has-text-weight-bold" : "navbar-item"} to={`/settings${getQuery()}`}>Settings</NavLink>
-                    {network !== "gnosis" && (
+                    {/*network !== "gnosis" && (
                         <NavLink className={({ isActive }) => isActive ? "navbar-item is-active has-text-weight-bold" : "navbar-item"} to={`/checksync${getQuery()}`}>Check</NavLink>
-                    )}
+                    )*/}
                 </div>
 
                 {isAdminMode() && (
