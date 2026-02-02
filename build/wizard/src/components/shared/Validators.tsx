@@ -216,19 +216,26 @@ const Validators = ({ settings, api, readonly = false }: Props) => {
     }
 
     const withdrawalTag = (validator: ValidatorData) => {
+        const credentials = validator.validator.withdrawal_credentials;
+        const isCompounding = credentials.startsWith("0x02"); // Pectra: compounding validator
+        const isEnabled = credentials.startsWith("0x01"); // Standard execution layer withdrawals
+        const isBLS = credentials.startsWith("0x00"); // Legacy BLS credentials
 
         const message = () => {
-            const withdrawal_credentials = validator.validator.withdrawal_credentials
-
-            if (validator.status.startsWith("exit"))
-                return ["exited", ""]
-            if (withdrawal_credentials === "0x0000000000000000000000000000000000000000000000000000000000000000")
-                return ["pending", ""]
-            if (withdrawal_credentials.startsWith("0x01"))
-                return ["enabled", "is-success"]
-            return ["todo", "is-warning"]
+            if (isCompounding) return "enabled+compounding";
+            if (isEnabled) return "enabled";
+            if (isBLS) return "todo";
+            return "unknown";
         }
-        return <span className={"tag " + message()[1]}>{message()[0]}</span>
+
+        const getColorClass = () => {
+            if (isCompounding) return "is-info"; // Compounding (Pectra upgrade)
+            if (isEnabled) return "is-success"; // Standard withdrawals enabled
+            if (isBLS) return "is-warning"; // BLS credentials, needs update
+            return "is-danger"; // Unknown format
+        }
+
+        return <span className={"tag " + getColorClass()}>{message()}</span>
     }
 
     const canExit = (validator: ValidatorData) => validator.status === "active_ongoing"
