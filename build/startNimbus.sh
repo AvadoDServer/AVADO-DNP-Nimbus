@@ -123,6 +123,9 @@ exec /home/user/nimbus-eth2/build/nimbus_beacon_node \
   --rest \
   --rest-port=5052 \
   --rest-address=0.0.0.0 \
+  --metrics \
+  --metrics-address=0.0.0.0 \
+  --metrics-port=8008 \
   --network=${NETWORK} \
   --data-dir="${DATA_PATH}" \
   --hard-max-peers="${P2P_PEER_UPPER_BOUND}" \
