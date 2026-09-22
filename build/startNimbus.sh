@@ -25,12 +25,17 @@ fi
 case ${NETWORK} in
 "prater")
   P2P_PORT=9101
+  QUIC_PORT=9104
   ;;
 "holesky")
   P2P_PORT=9102
+  QUIC_PORT=9105
   ;;
 *)
   P2P_PORT=9100
+  # QUIC gossip needs its own UDP port (discovery owns P2P_PORT/udp); Nimbus'
+  # default 9001/udp clashes with the Teku package
+  QUIC_PORT=9103
   ;;
 esac
 
@@ -112,7 +117,7 @@ MEV_BOOST_ENABLED=$(cat ${SETTINGSFILE} | jq -r '."mev_boost" // empty')
 exec /home/user/nimbus-eth2/build/nimbus_beacon_node \
   --non-interactive \
   --jwt-secret="${JWT_SECRET}" \
-  --web3-url="${EE_ENDPOINT}" \
+  --el="${EE_ENDPOINT}" \
   --keymanager \
   ${INITIAL_STATE_FILE:+--finalized-checkpoint-state="${INITIAL_STATE_FILE}"} \
   --keymanager-token-file="${KEYMANAGER_TOKEN}" \
@@ -120,6 +125,8 @@ exec /home/user/nimbus-eth2/build/nimbus_beacon_node \
   --keymanager-address=0.0.0.0 \
   --tcp-port=${P2P_PORT} \
   --udp-port=${P2P_PORT} \
+  --quic-port=${QUIC_PORT} \
+  --enr-auto-update \
   --rest \
   --rest-port=5052 \
   --rest-address=0.0.0.0 \
