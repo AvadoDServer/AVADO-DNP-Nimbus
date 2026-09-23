@@ -105,27 +105,6 @@ router.get('/service/status', async (context: Context) => {
     }
 });
 
-// checkpointz 
-router.get("/:endpoint/checkpointz/v1/beacon/slots/:slot", async (context: any) => {
-    const endpoint = context.params.endpoint;
-    const slot = context.params.slot;
-    const url = `https://${endpoint}/checkpointz/v1/beacon/slots/${slot}`
-
-    const response = await fetch(url);
-    context.response.body = await response.json();
-    context.response.status = response.status;
-});
-
-router.get("/:endpoint/api/v1/block/:slot", async (context: any) => {
-    const endpoint = context.params.endpoint;
-    const slot = context.params.slot;
-    const url = `https://${endpoint}/api/v1/block/${slot}`
-
-    const response = await fetch(url);
-    context.response.body = await response.json();
-    context.response.status = response.status;
-});
-
 /////////////////////////////
 // Beacon chain rest API   //
 /////////////////////////////
