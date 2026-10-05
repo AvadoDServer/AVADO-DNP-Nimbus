@@ -4,7 +4,7 @@ ARG NIMBUS_VERSION
 # Exact Node patch tag so a rebuild of this release uses the same toolchain;
 # the UI source is pinned by its release tag below.
 FROM node:20.20.2-bookworm-slim AS ui
-ARG CLIENT_UI_VERSION=v0.1.0
+ARG CLIENT_UI_VERSION=v0.1.1
 ARG CLIENT_UI_REPO=https://github.com/AvadoDServer/AVADO-Client-UI
 RUN apt-get -y update && apt-get -y install --no-install-recommends git ca-certificates \
     && rm -rf /var/lib/apt/lists/*
