@@ -33,10 +33,16 @@ RUN curl --fail --location --progress-bar --output /tmp/deno.zip "https://github
   && rm /tmp/deno.zip
 
 COPY server /usr/local/server
-RUN cd /usr/local/server && deno check server.ts && deno cache server.ts
+# Retry the dependency download: one npm registry hiccup must not fail the build
+RUN cd /usr/local/server || exit 1; \
+  n=0; until deno cache server.ts; do n=$((n+1)); [ $n -ge 5 ] && exit 1; echo "deno cache failed, retry $n/4"; sleep $((n*10)); done; \
+  deno check server.ts
 
 COPY wizard-server /usr/local/wizard-server
-RUN cd /usr/local/wizard-server && deno check wizard-server.ts && deno cache wizard-server.ts
+# Retry the dependency download: one npm registry hiccup must not fail the build
+RUN cd /usr/local/wizard-server || exit 1; \
+  n=0; until deno cache wizard-server.ts; do n=$((n+1)); [ $n -ge 5 ] && exit 1; echo "deno cache failed, retry $n/4"; sleep $((n*10)); done; \
+  deno check wizard-server.ts
 
 COPY startNimbus.sh /opt/nimbus/
 COPY server/settings/defaultsettings-${NETWORK}.json /opt/nimbus/defaultsettings.json
