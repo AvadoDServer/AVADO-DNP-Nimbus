@@ -10,10 +10,8 @@ case ${NETWORK} in
   ;;
 esac
 
-yq -o=json eval --inplace '.name = "nimbus"' build/wizard/src/server_config.json
 yq -o=json eval --inplace '.name = "nimbus"' build/server/server_config.json
 
-yq -o=json eval --inplace '.network = "'${NETWORK}'"' build/wizard/src/server_config.json
 yq -o=json eval --inplace '.network = "'${NETWORK}'"' build/server/server_config.json
 
 for file in \

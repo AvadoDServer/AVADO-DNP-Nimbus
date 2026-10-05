@@ -1,11 +1,16 @@
 ARG NIMBUS_VERSION
-FROM node:18.15.0 as builder
 
-# build wizard
-WORKDIR /usr/src/app/wizard
-COPY wizard .
-RUN yarn
-RUN rm -Rf build && yarn run build
+# Build the shared AVADO Client UI (https://github.com/AvadoDServer/AVADO-Client-UI)
+# Exact Node patch tag so a rebuild of this release uses the same toolchain;
+# the UI source is pinned by its release tag below.
+FROM node:20.20.2-bookworm-slim AS ui
+ARG CLIENT_UI_VERSION=v0.1.1
+ARG CLIENT_UI_REPO=https://github.com/AvadoDServer/AVADO-Client-UI
+RUN apt-get -y update && apt-get -y install --no-install-recommends git ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+RUN git clone --depth 1 --branch ${CLIENT_UI_VERSION} ${CLIENT_UI_REPO} /ui
+WORKDIR /ui
+RUN yarn install --frozen-lockfile && yarn build
 
 FROM --platform=linux/amd64 statusim/nimbus-eth2:amd64-${NIMBUS_VERSION}
 ARG NETWORK
@@ -24,7 +29,20 @@ RUN apt-get -y update && apt-get -y upgrade && apt-get -y install \
 RUN mkdir /data  && chown user /data
 VOLUME /data
 
-COPY --from=builder /usr/src/app/wizard/build /usr/local/wizard
+COPY --from=ui /ui/dist /usr/local/wizard
+
+# The UI build ships no client-config.json; tell it which client and network it serves.
+RUN test -n "${NETWORK}" \
+    && if [ "${NETWORK}" = "mainnet" ]; then PREFIX=nimbus; else PREFIX="nimbus-${NETWORK}"; fi \
+    && jq -n --arg network "${NETWORK}" --arg prefix "${PREFIX}" '{ \
+        client: "nimbus", \
+        network: $network, \
+        packageName: ($prefix + ".avado.dnp.dappnode.eth"), \
+        apiUrl: ("http://" + $prefix + ".my.ava.do:9999"), \
+        backend: "deno", \
+        features: { batchImport: true, backup: false, zeroSync: false } \
+    }' > /usr/local/wizard/client-config.json \
+    && cat /usr/local/wizard/client-config.json
 
 # Install deno
 RUN curl --fail --location --progress-bar --output /tmp/deno.zip "https://github.com/denoland/deno/releases/download/v1.40.2/deno-x86_64-unknown-linux-gnu.zip" \
