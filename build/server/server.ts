@@ -36,11 +36,18 @@ router.post('/settings', async (context: Context) => {
         const json_text = await context.request.body.text();
         const json = JSON.parse(json_text);
         await write_settings(json)
-        await restart()
-        context.response.body = `Saved settings and restarted`
     } catch (err) {
         console.error(`Could not write settings file: ${err}`);
         context.response.status = Status.UnprocessableEntity
+        return
+    }
+    try {
+        await restart()
+        context.response.body = `Saved settings and restarted`
+    } catch (err) {
+        console.error("Settings saved, but the restart failed:", err)
+        context.response.status = Status.InternalServerError
+        context.response.body = `Settings saved, but the client could not be restarted: ${(err && (err as any).message) || err}`
     }
 });
 
@@ -50,8 +57,24 @@ router.get('/defaultsettings', (context) => {
 });
 
 const supervisorCtl = new SupervisorCtl(`localhost`, 5555, '/RPC2')
+
+// supervisord refuses to stop a program that is not running (it crashed, gave up after
+// failed starts, or the user stopped it). For a restart that is fine: the program only
+// has to be started again.
+const isNotRunning = (error: any): boolean =>
+    /NOT_RUNNING/.test(String((error && (error.faultString || error.message)) || error));
+
+const stopIfRunning = async (name: string) => {
+    try {
+        await supervisorCtl.callMethod('supervisor.stopProcess', [name, true]);
+    } catch (error) {
+        if (!isNotRunning(error)) throw error;
+        console.log(`${name} is not running, starting it`);
+    }
+}
+
 const restart = async () => {
-    await Promise.all(server_config.supervisord_programs.map(name => supervisorCtl.callMethod('supervisor.stopProcess', [name, true])))
+    await Promise.all(server_config.supervisord_programs.map(name => stopIfRunning(name)))
     await new Promise(f => setTimeout(f, 3000)); //wait 3 seconds
     await Promise.all(server_config.supervisord_programs.map(name => supervisorCtl.callMethod('supervisor.startProcess', [name, true])))
 }
